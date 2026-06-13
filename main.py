@@ -1,5 +1,6 @@
 import os
 import requests
+from datetime import datetime
 
 # API-FOOTBALL key
 api_key = os.getenv("FOOTBALL_API_KEY")
@@ -8,7 +9,13 @@ api_key = os.getenv("FOOTBALL_API_KEY")
 sendkey = os.getenv("SERVERCHAN_KEY")
 
 # 查询今日比赛
-url = "https://v3.football.api-sports.io/fixtures?next=5"
+today = datetime.utcnow().strftime("%Y-%m-%d")
+
+url = f"https://v3.football.api-sports.io/fixtures?date={today}"
+
+headers = {
+    "x-apisports-key": api_key
+}
 
 headers = {
     "x-apisports-key": api_key
