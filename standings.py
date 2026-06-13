@@ -7,26 +7,29 @@ TABLE_URLS = {
     "中超": "https://www.espn.com/soccer/standings/_/league/chn.1"
 }
 
+
 def get_tables():
 
     msg = "\n# 📊 联赛积分榜\n\n"
 
     for league_name, url in TABLE_URLS.items():
 
-        msg += f"## {league_name}\n"
+        msg += f"## {league_name}\n\n"
 
         try:
 
             html = requests.get(
                 url,
-                headers={"User-Agent": "Mozilla/5.0"}
+                headers={
+                    "User-Agent": "Mozilla/5.0"
+                }
             ).text
 
             soup = BeautifulSoup(html, "html.parser")
 
             rows = soup.find_all("tr")
 
-            count = 0
+            rank = 1
 
             for row in rows:
 
@@ -35,17 +38,22 @@ def get_tables():
                 if len(text) < 10:
                     continue
 
-                msg += text + "\n"
+                # 去掉过长的数据行
+                if len(text) > 80:
+                    continue
 
-                count += 1
+                msg += f"{rank}. {text}\n"
 
-                if count >= 20:
+                rank += 1
+
+                if rank > 20:
                     break
 
             msg += "\n"
 
-        except:
+        except Exception as e:
 
-            msg += "获取失败\n"
+            msg += "获取失败\n\n"
 
     return msg
+```
