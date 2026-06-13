@@ -119,11 +119,15 @@ for league_name, league_id in LEAGUES.items():
         f"&season={season}"
     )
 
-    table_data = requests.get(
-        table_url,
-        headers=headers
-    ).json()
+table_data = requests.get(
+    table_url,
+    headers=headers
+).json()
 
+print("======")
+print(league_name)
+print(table_url)
+print(table_data)
     msg += f"\n## {league_name}\n"
 
     try:
