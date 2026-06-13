@@ -1,18 +1,40 @@
 import os
 import requests
 
+# API-FOOTBALL key
+api_key = os.getenv("FOOTBALL_API_KEY")
+
+# Server酱 key
 sendkey = os.getenv("SERVERCHAN_KEY")
 
-title = "🎉 Football AI 测试成功"
-desp = "GitHub Actions 已成功运行"
+# 查询今日比赛
+url = "https://v3.football.api-sports.io/fixtures?next=5"
 
-url = f"https://sctapi.ftqq.com/{sendkey}.send"
-
-data = {
-    "title": title,
-    "desp": desp
+headers = {
+    "x-apisports-key": api_key
 }
 
-response = requests.post(url, data=data)
+response = requests.get(url, headers=headers)
 
-print(response.text)
+data = response.json()
+
+msg = ""
+
+if "response" in data:
+    for match in data["response"]:
+        home = match["teams"]["home"]["name"]
+        away = match["teams"]["away"]["name"]
+        date = match["fixture"]["date"][:16]
+
+        msg += f"{home} vs {away}\n{date}\n\n"
+
+# 推送到微信
+push_url = f"https://sctapi.ftqq.com/{sendkey}.send"
+
+requests.post(
+    push_url,
+    data={
+        "title": "⚽ 今日足球比赛",
+        "desp": msg
+    }
+)
