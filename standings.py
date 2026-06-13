@@ -1,20 +1,16 @@
+import os
 import requests
 
-WORKER = "https://mute-dream-d2d6.boruihe600.workers.dev"
+API_KEY = os.getenv("FOOTBALL_DATA_KEY")
+
+headers = {
+    "X-Auth-Token": API_KEY
+}
 
 LEAGUES = {
-    "英超": {
-        "tournament": 17,
-        "season": 61627
-    },
-    "西甲": {
-        "tournament": 8,
-        "season": 61644
-    },
-    "中超": {
-        "tournament": 649,
-        "season": 70432
-    }
+    "英超": "PL",
+    "西甲": "PD",
+    "中超": "CSL"
 }
 
 
@@ -22,34 +18,29 @@ def get_tables():
 
     msg = "\n# 📊 联赛积分榜\n\n"
 
-    for league_name, info in LEAGUES.items():
+    for league_name, code in LEAGUES.items():
 
         msg += f"## {league_name}\n\n"
 
-        api_url = (
-            "https://api.sofascore.com/api/v1/"
-            f"unique-tournament/{info['tournament']}"
-            f"/season/{info['season']}"
-            "/standings/total"
+        url = (
+            f"https://api.football-data.org/v4/competitions/{code}/standings"
         )
-
-        url = f"{WORKER}?url={api_url}"
 
         try:
 
-            response = requests.get(url)
+            data = requests.get(
+                url,
+                headers=headers
+            ).json()
 
-            print(response.status_code)
-            print(response.text)
-
-            data = response.json()
-
-            rows = data["standings"][0]["rows"]
+            rows = data["standings"][0]["table"]
 
             for team in rows:
 
                 rank = team["position"]
-                name = team["team"]["name"]
+
+                name = team["team"]["shortName"]
+
                 points = team["points"]
 
                 msg += (
