@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from translator import translate_team
 
 TABLE_URLS = {
     "英超": "https://www.espn.com/soccer/standings/_/league/eng.1",
@@ -49,8 +50,12 @@ def get_tables():
                 if rank > 20:
                     break
 
-            msg += "\n"
+            team_name = text
 
+team_name = translate_team(team_name)
+
+msg += f"{rank}. {team_name}\n"
+            
         except Exception as e:
 
             msg += "获取失败\n\n"
