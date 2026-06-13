@@ -7,19 +7,14 @@ LEAGUES = {
 "tournament": 17,
 "season": 61627
 },
-
-```
 "西甲": {
-    "tournament": 8,
-    "season": 61644
+"tournament": 8,
+"season": 61644
 },
-
 "中超": {
-    "tournament": 649,
-    "season": 70432
+"tournament": 649,
+"season": 70432
 }
-```
-
 }
 
 def get_tables():
@@ -57,15 +52,19 @@ for league_name, info in LEAGUES.items():
             name = team["team"]["name"]
             points = team["points"]
 
-            msg += f"{rank}. {name} {points}分\n"
+            msg += (
+                f"{rank}. {name} {points}分\n"
+            )
 
         msg += "\n"
 
     except Exception as e:
 
-        msg += f"获取失败：{e}\n\n"
-
         print(e)
+
+        msg += (
+            f"获取失败：{e}\n\n"
+        )
 
 return msg
 ```
