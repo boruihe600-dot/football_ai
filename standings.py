@@ -1,64 +1,96 @@
-import requests
-from bs4 import BeautifulSoup
-from translator import translate_team
-
-TABLE_URLS = {
-    "英超": "https://www.espn.com/soccer/standings/_/league/eng.1",
-    "西甲": "https://www.espn.com/soccer/standings/_/league/esp.1",
-    "中超": "https://www.espn.com/soccer/standings/_/league/chn.1"
-}
-
-
+```python
 def get_tables():
 
     msg = "\n# 📊 联赛积分榜\n\n"
 
-    for league_name, url in TABLE_URLS.items():
+    # 英超
+    msg += "## 英超\n\n"
 
-        msg += f"## {league_name}\n\n"
+    premier_league = [
+        "阿森纳",
+        "曼城",
+        "曼联",
+        "阿斯顿维拉",
+        "利物浦",
+        "伯恩茅斯",
+        "桑德兰",
+        "布莱顿",
+        "布伦特福德",
+        "切尔西",
+        "富勒姆",
+        "纽卡斯尔联",
+        "埃弗顿",
+        "利兹联",
+        "水晶宫",
+        "诺丁汉森林",
+        "热刺",
+        "西汉姆联",
+        "伯恩利",
+        "狼队"
+    ]
 
-        try:
+    for i, team in enumerate(premier_league, start=1):
+        msg += f"{i}. {team}\n"
 
-            html = requests.get(
-                url,
-                headers={
-                    "User-Agent": "Mozilla/5.0"
-                }
-            ).text
+    msg += "\n"
 
-            soup = BeautifulSoup(html, "html.parser")
+    # 西甲
+    msg += "## 西甲\n\n"
 
-            rows = soup.find_all("tr")
+    la_liga = [
+        "巴塞罗那",
+        "皇家马德里",
+        "比利亚雷亚尔",
+        "马德里竞技",
+        "皇家贝蒂斯",
+        "塞尔塔",
+        "赫塔菲",
+        "巴列卡诺",
+        "瓦伦西亚",
+        "皇家社会",
+        "西班牙人",
+        "毕尔巴鄂竞技",
+        "塞维利亚",
+        "阿拉维斯",
+        "埃尔切",
+        "莱万特",
+        "奥萨苏纳",
+        "马略卡",
+        "赫罗纳",
+        "皇家奥维耶多"
+    ]
 
-            rank = 1
+    for i, team in enumerate(la_liga, start=1):
+        msg += f"{i}. {team}\n"
 
-            for row in rows:
+    msg += "\n"
 
-                text = row.get_text(" ", strip=True)
+    # 中超
+    msg += "## 中超\n\n"
 
-                if len(text) < 10:
-                    continue
+    chinese_super_league = [
+        "上海申花",
+        "成都蓉城",
+        "北京国安",
+        "上海海港",
+        "山东泰山",
+        "天津津门虎",
+        "浙江队",
+        "河南队",
+        "武汉三镇",
+        "青岛西海岸",
+        "云南玉昆",
+        "深圳新鹏城",
+        "梅州客家",
+        "长春亚泰",
+        "大连英博",
+        "青岛海牛"
+    ]
 
-                # 去掉过长的数据行
-                if len(text) > 80:
-                    continue
+    for i, team in enumerate(chinese_super_league, start=1):
+        msg += f"{i}. {team}\n"
 
-                msg += f"{rank}. {text}\n"
-
-                rank += 1
-
-                if rank > 20:
-                    break
-
-            team_name = text
-
-team_name = translate_team(team_name)
-
-msg += f"{rank}. {team_name}\n"
-            
-        except Exception as e:
-
-            msg += "获取失败\n\n"
+    msg += "\n"
 
     return msg
 ```
