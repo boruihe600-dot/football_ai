@@ -1,9 +1,13 @@
 import os
 import requests
+from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-from config import TEAM_IDS, LEAGUES, WORLD_CUP
+from config import TEAM_IDS, WORLD_CUP
 
+# API KEY
 api_key = os.getenv("FOOTBALL_API_KEY")
+
+# Server酱
 sendkey = os.getenv("SERVERCHAN_KEY")
 
 headers = {
@@ -12,24 +16,25 @@ headers = {
 
 msg = ""
 
-# ==================
+# ======================
 # 昨天日期
-# ==================
+# ======================
+
 yesterday = (
     datetime.utcnow() - timedelta(days=1)
 ).strftime("%Y-%m-%d")
 
 msg += "# ⚽ 昨日重点比赛\n\n"
 
-# ==================
-# 关注球队比赛
-# ==================
+# ======================
+# 查询关注球队
+# ======================
+
 for team_name, team_id in TEAM_IDS.items():
 
     url = (
         "https://v3.football.api-sports.io/fixtures"
-        f"?team={team_id}"
-        f"&date={yesterday}"
+        f"?team={team_id}&date={yesterday}"
     )
 
     data = requests.get(
@@ -69,90 +74,107 @@ for team_name, team_id in TEAM_IDS.items():
 
             if e["type"] == "Goal":
 
-                minute = e["time"]["elapsed"]
                 player = e["player"]["name"]
+                minute = e["time"]["elapsed"]
 
-                msg += (
-                    f"⚽ {minute}' {player}\n"
-                )
+                msg += f"⚽ {minute}' {player}\n"
 
         msg += "\n"
 
-# ==================
-# 联赛积分榜
-# ==================
-msg += "\n# 📊 联赛积分榜\n\n"
+# ===================================
+# 联赛积分榜（实时网页）
+# ===================================
 
-season = 2025
+msg += "\n# 📊 联赛积分榜\n"
 
-for league_name, league_id in LEAGUES.items():
+TABLE_URLS = {
 
-    table_url = (
-        "https://v3.football.api-sports.io/standings"
-        f"?league={league_id}"
-        f"&season={season}"
-    )
+    "英超":
+    "https://www.espn.com/soccer/standings/_/league/eng.1",
 
-    table_data = requests.get(
-        table_url,
-        headers=headers
-    ).json()
+    "西甲":
+    "https://www.espn.com/soccer/standings/_/league/esp.1",
 
-    print("==========")
-    print(league_name)
-    print(table_url)
-    print(table_data)
+    "中超":
+    "https://www.espn.com/soccer/standings/_/league/chn.1"
+
+}
+
+for league_name, url in TABLE_URLS.items():
+
     msg += f"\n## {league_name}\n"
 
     try:
 
-        standings = (
-            table_data["response"][0]
-            ["league"]["standings"][0]
+        html = requests.get(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        ).text
+
+        soup = BeautifulSoup(
+            html,
+            "html.parser"
         )
 
-        for team in standings:
+        rows = soup.find_all("tr")
 
-            rank = team["rank"]
-            name = team["team"]["name"]
-            pts = team["points"]
+        count = 0
 
-            msg += (
-                f"{rank}. {name} "
-                f"{pts}分\n"
+        for row in rows:
+
+            text = row.get_text(
+                " ",
+                strip=True
             )
+
+            if len(text) < 10:
+                continue
+
+            msg += text + "\n"
+
+            count += 1
+
+            if count >= 20:
+                break
 
     except:
 
-        msg += "暂无积分榜数据\n"
+        msg += "获取失败\n"
 
-# ==================
+# ===================================
 # 世界杯赛程
-# ==================
-msg += "\n# 🌎 世界杯赛程\n\n"
+# ===================================
 
-world_url = (
+msg += "\n# 🌍 世界杯赛程\n\n"
+
+url = (
     "https://v3.football.api-sports.io/fixtures"
     f"?league={WORLD_CUP}"
 )
 
-world_data = requests.get(
-    world_url,
+data = requests.get(
+    url,
     headers=headers
 ).json()
 
-for match in world_data["response"][:10]:
+for m in data["response"][:10]:
 
-    home = match["teams"]["home"]["name"]
-    away = match["teams"]["away"]["name"]
+    home = m["teams"]["home"]["name"]
+    away = m["teams"]["away"]["name"]
+
+    date = m["fixture"]["date"][:10]
 
     msg += (
-        f"{home} vs {away}\n"
+        f"{date}\n"
+        f"{home} vs {away}\n\n"
     )
 
-# ==================
-# 微信推送
-# ==================
+# ===================================
+# 推送微信
+# ===================================
+
 push_url = (
     f"https://sctapi.ftqq.com/{sendkey}.send"
 )
@@ -164,3 +186,5 @@ requests.post(
         "desp": msg
     }
 )
+
+print("发送成功")
