@@ -18,6 +18,8 @@ response = requests.get(url, headers=headers)
 
 data = response.json()
 
+print(data)
+
 msg = ""
 
 if "response" in data:
