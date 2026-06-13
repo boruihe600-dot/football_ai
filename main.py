@@ -1,3 +1,4 @@
+```python
 import os
 import requests
 from datetime import datetime, timedelta
@@ -10,18 +11,17 @@ headers = {
     "x-apisports-key": api_key
 }
 
-msg = ""
+msg = "⚽ 足球日报\n\n"
 
 # ==================
-# 昨天日期
+# 昨日重点比赛
 # ==================
-yesterday = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
+yesterday = (
+    datetime.utcnow() - timedelta(days=1)
+).strftime("%Y-%m-%d")
 
-msg += "# ⚽ 昨日重点比赛\n\n"
+msg += "【昨日重点比赛】\n\n"
 
-# ==================
-# 查询关注球队
-# ==================
 for team_name, team_id in TEAM_IDS.items():
 
     url = (
@@ -29,27 +29,33 @@ for team_name, team_id in TEAM_IDS.items():
         f"?team={team_id}&date={yesterday}"
     )
 
-    r = requests.get(url, headers=headers)
-    data = r.json()
+    data = requests.get(
+        url,
+        headers=headers
+    ).json()
 
     if len(data["response"]) == 0:
         continue
 
     for match in data["response"]:
 
+        status = match["fixture"]["status"]["short"]
+
+        if status != "FT":
+            continue
+
         home = match["teams"]["home"]["name"]
         away = match["teams"]["away"]["name"]
 
-        goals_home = match["goals"]["home"]
-        goals_away = match["goals"]["away"]
+        home_goal = match["goals"]["home"]
+        away_goal = match["goals"]["away"]
 
         msg += (
-            f"## {home} {goals_home}-{goals_away} {away}\n"
+            f"{home} {home_goal}-{away_goal} {away}\n"
         )
 
         fixture_id = match["fixture"]["id"]
 
-        # 查询事件
         event_url = (
             f"https://v3.football.api-sports.io/fixtures/events"
             f"?fixture={fixture_id}"
@@ -62,13 +68,106 @@ for team_name, team_id in TEAM_IDS.items():
 
         for e in event_data["response"]:
 
-            if e["type"] == "Goal":
+            player = e["player"]["name"]
+            minute = e["time"]["elapsed"]
 
-                player = e["player"]["name"]
-                minute = e["time"]["elapsed"]
+            if e["type"] == "Goal":
 
                 msg += (
                     f"⚽ {minute}' {player}\n"
                 )
 
+            elif e["detail"] == "Yellow Card":
+
+                msg += (
+                    f"🟨 {minute}' {player}\n"
+                )
+
+            elif e["detail"] == "Red Card":
+
+                msg += (
+                    f"🟥 {minute}' {player}\n"
+                )
+
         msg += "\n"
+
+# ==================
+# 积分榜
+# ==================
+
+season = datetime.now().year
+
+for league_name, league_id in LEAGUES.items():
+
+    msg += (
+        f"\n【{league_name}积分榜】\n"
+    )
+
+    url = (
+        "https://v3.football.api-sports.io/standings"
+        f"?league={league_id}"
+        f"&season={season}"
+    )
+
+    data = requests.get(
+        url,
+        headers=headers
+    ).json()
+
+    standings = (
+        data["response"][0]
+        ["league"]
+        ["standings"][0]
+    )
+
+    for team in standings:
+
+        rank = team["rank"]
+        name = team["team"]["name"]
+        pts = team["points"]
+
+        msg += (
+            f"{rank}. {name} {pts}分\n"
+        )
+
+# ==================
+# 世界杯比赛
+# ==================
+
+msg += "\n【世界杯】\n"
+
+url = (
+    f"https://v3.football.api-sports.io/fixtures"
+    f"?league={WORLD_CUP}"
+)
+
+data = requests.get(
+    url,
+    headers=headers
+).json()
+
+for m in data["response"][:10]:
+
+    home = m["teams"]["home"]["name"]
+    away = m["teams"]["away"]["name"]
+
+    msg += (
+        f"{home} vs {away}\n"
+    )
+
+# ==================
+# 微信推送
+# ==================
+
+push_url = (
+    f"https://sctapi.ftqq.com/{sendkey}.send"
+)
+
+requests.post(
+    push_url,
+    data={
+        "title": "⚽ 足球日报",
+        "desp": msg
+    }
+)
+```
