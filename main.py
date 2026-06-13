@@ -6,10 +6,7 @@ from config import TEAM_IDS, WORLD_CUP
 from standings import get_tables
 from next_match import get_next_match
 
-# API KEY
 api_key = os.getenv("FOOTBALL_API_KEY")
-
-# Server酱 KEY
 sendkey = os.getenv("SERVERCHAN_KEY")
 
 headers = {
@@ -18,20 +15,14 @@ headers = {
 
 msg = ""
 
-# =====================
 # 昨天日期
-# =====================
-
 yesterday = (
     datetime.utcnow() - timedelta(days=1)
 ).strftime("%Y-%m-%d")
 
 msg += "# ⚽ 昨日重点比赛\n\n"
 
-# =====================
 # 查询关注球队
-# =====================
-
 for team_name, team_id in TEAM_IDS.items():
 
     url = (
@@ -45,9 +36,6 @@ for team_name, team_id in TEAM_IDS.items():
     ).json()
 
     if "response" not in data:
-        continue
-
-    if len(data["response"]) == 0:
         continue
 
     for match in data["response"]:
@@ -64,7 +52,6 @@ for team_name, team_id in TEAM_IDS.items():
 
         fixture_id = match["fixture"]["id"]
 
-        # 查询进球事件
         event_url = (
             "https://v3.football.api-sports.io/fixtures/events"
             f"?fixture={fixture_id}"
@@ -90,18 +77,13 @@ for team_name, team_id in TEAM_IDS.items():
 
         msg += "\n"
 
-# =====================
 # 联赛积分榜
-# =====================
-
 msg += get_tables()
 
+# 下一场比赛
 msg += get_next_match()
 
-# =====================
 # 世界杯赛程
-# =====================
-
 msg += "\n# 🌍 世界杯赛程\n\n"
 
 url = (
@@ -128,10 +110,7 @@ if "response" in data:
             f"{home} vs {away}\n\n"
         )
 
-# =====================
 # 推送微信
-# =====================
-
 push_url = (
     f"https://sctapi.ftqq.com/{sendkey}.send"
 )
