@@ -109,7 +109,7 @@ for match in world_data["response"][:10]:
 # ======================
 msg += "\n# 📊 联赛积分榜\n\n"
 
-season = datetime.now().year
+season = 2025
 
 for league_name, league_id in LEAGUES.items():
 
