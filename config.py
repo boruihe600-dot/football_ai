@@ -1,47 +1,23 @@
-# ======================
-# 关注球队
-# ======================
+# 关注球队 id
 
-FAVORITE_TEAMS = [
-
-    "Manchester City",
-
-    "Henan FC",
-
-    "China",
-
-    "China U23",
-
-    "China U20",
-
-    "China U17"
-
-]
+TEAM_IDS = {
+    "曼城": 50,
+    "河南队": 5814,
+    "中国男足": 1567,
+    "中国U23": 1575,
+    "中国U20": 1581,
+    "中国U17": 1582,
+    "英格兰": 770
+}
 
 
-# ======================
-# 关注联赛
-# ======================
-
-FAVORITE_LEAGUES = [
-
-    "Premier League",
-
-    "La Liga",
-
-    "Chinese Super League"
-
-]
+# 联赛 id
+LEAGUES = {
+    "英超": 39,
+    "西甲": 140,
+    "中超": 169
+}
 
 
-# ======================
-# 世界杯专区
-# ======================
-
-WORLD_CUP_LEAGUES = [
-
-    "World Cup",
-
-    "World Cup - Qualification Asia"
-
-]
+# 世界杯
+WORLD_CUP = 1
