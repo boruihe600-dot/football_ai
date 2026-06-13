@@ -98,6 +98,10 @@ for league_name, league_id in LEAGUES.items():
         headers=headers
     ).json()
 
+    print("==========")
+    print(league_name)
+    print(table_url)
+    print(table_data)
     msg += f"\n## {league_name}\n"
 
     try:
