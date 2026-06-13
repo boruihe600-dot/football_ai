@@ -33,9 +33,11 @@ def get_tables():
                 headers=headers
             )
 
-            data = response.json()
+           data = response.json()
 
-            rows = data["standings"][0]["table"]
+           print(data)
+
+           rows = data["standings"][0]["table"]
 
             for team in rows:
 
