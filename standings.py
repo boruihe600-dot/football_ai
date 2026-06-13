@@ -63,6 +63,10 @@ def get_tables():
 
         except Exception as e:
 
-            msg += "获取失败\n\n"
+            except Exception as e:
+
+    msg += f"获取失败：{e}\n\n"
+
+    print(e)
 
     return msg
