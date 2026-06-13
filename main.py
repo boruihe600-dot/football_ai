@@ -3,10 +3,7 @@ import requests
 from datetime import datetime, timedelta
 from config import TEAM_IDS, LEAGUES, WORLD_CUP
 
-# API key
 api_key = os.getenv("FOOTBALL_API_KEY")
-
-# Server酱 key
 sendkey = os.getenv("SERVERCHAN_KEY")
 
 headers = {
@@ -15,23 +12,24 @@ headers = {
 
 msg = ""
 
-# ======================
+# ==================
 # 昨天日期
-# ======================
+# ==================
 yesterday = (
     datetime.utcnow() - timedelta(days=1)
 ).strftime("%Y-%m-%d")
 
 msg += "# ⚽ 昨日重点比赛\n\n"
 
-# ======================
-# 查询关注球队
-# ======================
+# ==================
+# 关注球队比赛
+# ==================
 for team_name, team_id in TEAM_IDS.items():
 
     url = (
         "https://v3.football.api-sports.io/fixtures"
-        f"?team={team_id}&date={yesterday}"
+        f"?team={team_id}"
+        f"&date={yesterday}"
     )
 
     data = requests.get(
@@ -71,8 +69,8 @@ for team_name, team_id in TEAM_IDS.items():
 
             if e["type"] == "Goal":
 
-                player = e["player"]["name"]
                 minute = e["time"]["elapsed"]
+                player = e["player"]["name"]
 
                 msg += (
                     f"⚽ {minute}' {player}\n"
@@ -80,33 +78,9 @@ for team_name, team_id in TEAM_IDS.items():
 
         msg += "\n"
 
-
-# ======================
-# 世界杯赛程
-# ======================
-msg += "\n# 🌎 世界杯赛程\n\n"
-
-world_url = (
-    "https://v3.football.api-sports.io/fixtures"
-    f"?league={WORLD_CUP}"
-)
-
-world_data = requests.get(
-    world_url,
-    headers=headers
-).json()
-
-for match in world_data["response"][:10]:
-
-    home = match["teams"]["home"]["name"]
-    away = match["teams"]["away"]["name"]
-
-    msg += f"{home} vs {away}\n"
-
-
-# ======================
+# ==================
 # 联赛积分榜
-# ======================
+# ==================
 msg += "\n# 📊 联赛积分榜\n\n"
 
 season = 2025
@@ -119,18 +93,15 @@ for league_name, league_id in LEAGUES.items():
         f"&season={season}"
     )
 
-table_data = requests.get(
-    table_url,
-    headers=headers
-).json()
+    table_data = requests.get(
+        table_url,
+        headers=headers
+    ).json()
 
-print("======")
-print(league_name)
-print(table_url)
-print(table_data)
     msg += f"\n## {league_name}\n"
 
     try:
+
         standings = (
             table_data["response"][0]
             ["league"]["standings"][0]
@@ -148,12 +119,36 @@ print(table_data)
             )
 
     except:
+
         msg += "暂无积分榜数据\n"
 
+# ==================
+# 世界杯赛程
+# ==================
+msg += "\n# 🌎 世界杯赛程\n\n"
 
-# ======================
+world_url = (
+    "https://v3.football.api-sports.io/fixtures"
+    f"?league={WORLD_CUP}"
+)
+
+world_data = requests.get(
+    world_url,
+    headers=headers
+).json()
+
+for match in world_data["response"][:10]:
+
+    home = match["teams"]["home"]["name"]
+    away = match["teams"]["away"]["name"]
+
+    msg += (
+        f"{home} vs {away}\n"
+    )
+
+# ==================
 # 微信推送
-# ======================
+# ==================
 push_url = (
     f"https://sctapi.ftqq.com/{sendkey}.send"
 )
