@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from config import TEAM_IDS, WORLD_CUP
 from standings import get_tables
+from next_match import get_next_match
 
 # API KEY
 api_key = os.getenv("FOOTBALL_API_KEY")
@@ -94,6 +95,8 @@ for team_name, team_id in TEAM_IDS.items():
 # =====================
 
 msg += get_tables()
+
+msg += get_next_match()
 
 # =====================
 # 世界杯赛程
