@@ -28,19 +28,19 @@ def get_tables():
 
         try:
 
-            data = requests.get(
+            response = requests.get(
                 url,
                 headers=headers
-            ).json()
+            )
+
+            data = response.json()
 
             rows = data["standings"][0]["table"]
 
             for team in rows:
 
                 rank = team["position"]
-
                 name = team["team"]["shortName"]
-
                 points = team["points"]
 
                 msg += (
