@@ -19,3 +19,4 @@ jobs:
       - run: python main.py
         env:
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+          FOOTBALL_API_KEY: ${{ secrets.FOOTBALL_API_KEY }}
