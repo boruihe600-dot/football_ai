@@ -12,6 +12,7 @@ TEAM_IDS = {
 
 
 # 联赛 id
+
 LEAGUES = {
     "英超": 39,
     "西甲": 140,
@@ -20,4 +21,5 @@ LEAGUES = {
 
 
 # 世界杯
+
 WORLD_CUP = 1
