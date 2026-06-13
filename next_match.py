@@ -36,6 +36,7 @@ def get_next_match():
 
         home = match["teams"]["home"]["name"]
         away = match["teams"]["away"]["name"]
+
         league = match["league"]["name"]
         date = match["fixture"]["date"][:10]
 
