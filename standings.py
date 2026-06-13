@@ -19,7 +19,6 @@ LEAGUES = {
 
 def get_tables():
 
-```
 msg = "\n# 📊 联赛积分榜\n\n"
 
 for league_name, info in LEAGUES.items():
@@ -67,4 +66,4 @@ for league_name, info in LEAGUES.items():
         )
 
 return msg
-```
+
